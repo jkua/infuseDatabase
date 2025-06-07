@@ -129,14 +129,14 @@ def parse_movie_records(movie_records, share_path_prefix=None):
                 'Formats': formats
             }
         else:
-            movies[record['TmdbID']]['Files'].add(full_path)
+            movies[record['TmdbID']]['Files'].update(files)
             movies[record['TmdbID']]['Formats'].update(formats)
 
     sorted_movies = sorted(movies.values(), key=lambda x: (x['Title'], x['ReleaseDateTime']))
 
     return sorted_movies
 
-def parse_tv_show_records(tv_records):
+def parse_tv_show_records(tv_records, share_path_prefix=None):
     tv_shows = {}
 
     for i, record in enumerate(tv_records, 1):
@@ -152,9 +152,7 @@ def parse_tv_show_records(tv_records):
         else:
             aired_year = None
 
-        full_path = os.path.join('/Volumes', record['path'][1:])
-        # if os.path.isdir(full_path):
-        #     raise ("TV shows should not be directories, please check your database.")
+        full_path = os.path.join(share_path_prefix, record['path'][1:])
         
         if 'dvd' in full_path.lower():
             video_format = 'dvd'
@@ -330,7 +328,7 @@ if __name__=='__main__':
     tv_records = database.get_tv()
     print(f'\n*** TV show records in database: {len(tv_records)}')
 
-    sorted_tv_show_episodes = parse_tv_show_records(tv_records)
+    sorted_tv_show_episodes = parse_tv_show_records(tv_records, args.share_path_prefix)
     print(f'Total unique TV show episodes found: {len(sorted_tv_show_episodes)}')
     
     print(f'Saving to infuse_tv_show_episodes.csv...')
